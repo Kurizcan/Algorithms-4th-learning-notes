@@ -1,4 +1,2 @@
-# CanBlog
-mini blog
-
-all for practice
+# Algorithms-4th
+some note about Algorithms-4th
