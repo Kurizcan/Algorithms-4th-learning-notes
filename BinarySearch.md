@@ -16,7 +16,8 @@
 
 ### 递归实现
 
-    public int BinarySearch(int key, int left, int right, int[] a) {
+```java
+public int BinarySearch(int key, int left, int right, int[] a) {
       if (left > right) return -1;
       int mid = left + (right - left) / 2;
       if (key < a[mid]) 
@@ -25,11 +26,12 @@
         return BinarySearch(key, mid + 1, right, a);
       else
         return mid;
-    }
+}
+```
 
 ### 非递归实现
-
-    public int BinarySearch(int key, int left, int right, int[] a) {
+```java
+public int BinarySearch(int key, int left, int right, int[] a) {
       while(left <= right) {
         int mid = left + (right - left) / 2;
         if (key < a[mid]) 
@@ -40,8 +42,8 @@
           return mid;
       }	
       return -1;
-    }
-
+}
+```
 ## 性能分析
 
 由递归实现，可以确定比较次数的上限。
