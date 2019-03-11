@@ -59,20 +59,20 @@
 ### 实现
 
 ```java
-	public static void Insert_sort(Comparable[] a) {
-		for (int i = 1; i < a.length; i++) {
-			for (int j = i; j > 0; j--) {
-				// 将 a[i] 插入到已经排好序的 a[0]....a[i - 1] 中
-				if (a[j].CompareTo(a[j -1]) < 0) {
-					Comparable temp = a[j - 1];
-					a[j - 1] = a[j];
-					a[j] = temp;
-				}
-				else
-					break;
+public static void Insert_sort(Comparable[] a) {
+	for (int i = 1; i < a.length; i++) {
+		for (int j = i; j > 0; j--) {
+			// 将 a[i] 插入到已经排好序的 a[0]....a[i - 1] 中
+			if (a[j].CompareTo(a[j -1]) < 0) {
+				Comparable temp = a[j - 1];
+				a[j - 1] = a[j];
+				a[j] = temp;
 			}
+			else
+				break;
 		}
 	}
+}
 ```
 
 ### 适合的场景
@@ -86,43 +86,43 @@
 在内循环中将较大的元素都向右移动而不总是交换两个元素，使得访问数组的次数减半
 
 ```java
-	public static void sort(Comparable[] a){
-        int n = a.length;
-        for(int i = 1; i < n; i ++){
-            Comparable temp = arr[i];
-            int j;
-            for(j = i; j > 0 && arr[j-1].compareTo(temp) > 0; j --){
-                a[j] = a[j-1];
-            }
-            a[j] = temp;
+public static void sort(Comparable[] a){
+    int n = a.length;
+    for(int i = 1; i < n; i ++){
+        Comparable temp = arr[i];
+        int j;
+        for(j = i; j > 0 && arr[j-1].compareTo(temp) > 0; j --){
+            a[j] = a[j-1];
         }
-	}
+        a[j] = temp;
+    }
+}
 ```
 
 可以考虑查找的时候使用二分查找提高效率
 
 ```java
-    public static void Insert_sort(Comparable[] a) {
-        int N = a.length;
-        for(int i = 1; i < N; i++){
-            int left = 0;
-            int right = i - 1;
-            Comparable temp = a[i];
-            int j;
-            while (left <= right) {
-                int mid = left + (right - left) / 2;
-                if (temp.CompareTo(a[mid]) < 0)
-                    right = mid - 1;
-                else
-                    left = mid + 1;
-            }		// 二分查找应该插入的位置
-            // 最佳位置往后移
-            for (j = i - 1; j >= left; j--) {
-                a[j + 1] = a[j];
-            }
-            a[j + 1] = temp;
+public static void Insert_sort(Comparable[] a) {
+    int N = a.length;
+    for(int i = 1; i < N; i++){
+        int left = 0;
+        int right = i - 1;
+        Comparable temp = a[i];
+        int j;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (temp.CompareTo(a[mid]) < 0)
+                right = mid - 1;
+            else
+                left = mid + 1;
+        }		// 二分查找应该插入的位置
+        // 最佳位置往后移
+        for (j = i - 1; j >= left; j--) {
+            a[j + 1] = a[j];
         }
+        a[j + 1] = temp;
     }
+}
 
 
 ```
@@ -141,24 +141,21 @@
 ### 实现
 
 ```java
-
-	public static void Shell_sort(Comparable[] a){
-        int n = a.length;
-        int h = 1;
-        while (h < n / 3) h = 3*h + 1;          // 1, 4, 13,.......
-        while (h >= 1) {
-            for(int i = h; i < n; i ++){
-                Comparable temp = a[i];
-                int j;
-                for( j = i ; j >= h && temp.CompareTo(a[j - h]) < 0; j = j - h){
-                    a[j] = a[j - h];
-                }
-                a[j] = temp;
+public static void Shell_sort(Comparable[] a){
+    int n = a.length;
+    int h = 1;
+    while (h < n / 3) h = 3*h + 1;          // 1, 4, 13,.......
+    while (h >= 1) {
+        for(int i = h; i < n; i ++){
+            Comparable temp = a[i];
+            int j;
+            for( j = i ; j >= h && temp.CompareTo(a[j - h]) < 0; j = j - h){
+                a[j] = a[j - h];
             }
-            h = h / 3;
+            a[j] = temp;
         }
-	}
-
-
+        h = h / 3;
+    }
+}
 ```
 
