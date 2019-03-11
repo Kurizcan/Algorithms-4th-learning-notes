@@ -17,20 +17,19 @@
 ### 实现
 
 ```java
-	public static void Select_sort(Comparable[] a) {
-		for (int i = 0; i < a.length; i++) {
-			int min = i;	// 最小元素索引
-			for (int j = i + 1; j < a.length; j++) {
-				if (a[j].CompareTo(a[min]) < 0) {
-					min = j;
-				}
+public static void Select_sort(Comparable[] a) {
+	for (int i = 0; i < a.length; i++) {
+		int min = i;	// 最小元素索引
+		for (int j = i + 1; j < a.length; j++) {
+			if (a[j].CompareTo(a[min]) < 0) {
+				min = j;
 			}
-			int temp = a[i];
-			a[i] = a[min];
-			a[min] = temp;
 		}
+		int temp = a[i];
+		a[i] = a[min];
+		a[min] = temp;
 	}
-
+}
 ```
 
 缺点：当所有的元素都相等，甚至是已经有序的部分都要进行与元素随机排列时一样多次的比较。
