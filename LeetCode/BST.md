@@ -92,3 +92,122 @@ class Solution {
     }
 }
 ```
+
+非递归解法：右子树必须先进入栈中
+
+```java
+class Solution {
+    public TreeNode convertBST(TreeNode root) {
+        int sum = 0;
+        ArrayDeque<TreeNode> stack = new ArrayDeque<>();
+        TreeNode node = root;
+        while (!stack.isEmpty() || node != null) {
+            
+            while (node != null) {
+                stack.push(node);
+                node = node.right;
+            }
+            
+            node = stack.pop();
+            node.val += sum;
+            sum = node.val;
+            
+            node = node.left;
+        }
+        return root;
+    }
+}
+```
+
+还有一种是空间为 O(1) 的解法：莫里斯遍历
+
+[Morris Traversal方法遍历二叉树（非递归，不用栈，O(1)空间） - AnnieKim - 博客园](https://www.cnblogs.com/AnnieKim/archive/2013/06/15/morristraversal.html)
+
+## 二叉查找树的最近公共祖先
+
+[235. Lowest Common Ancestor of a Binary Search Tree (Easy)](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
+
+要充分利用 BST 的特点，右 》 根 》 左，如果 p、q 结点都比根小，应该去左子树查找，都比根大，则应该去右子树查找，若介于两者之间，说明根就是最近公共祖先。
+
+递归解法：O（N）时空
+
+```java
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if (root == null) return null;
+        if (p.val < root.val && q.val < root.val)
+            return lowestCommonAncestor(root.left, p, q);
+        else if (p.val > root.val && q.val > root.val)
+            return lowestCommonAncestor(root.right, p, q);
+        else 
+            return root;
+    }
+}
+```
+
+遍历 BST：O（N）时间，O（1）空间
+
+```java
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if (root == null) return null;
+        TreeNode node = root;
+        while (node != null) {
+            if (p.val < node.val && q.val < node.val)
+                node = node.left;
+            else if (p.val > node.val && q.val > node.val)
+                node = node.right;
+            else
+                break;           
+        }
+        return node;
+    }
+}
+```
+
+## 二叉树的最近公共祖先
+
+[236. Lowest Common Ancestor of a Binary Tree (middle)](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/description/)
+
+这道题与上一道题有明显的不同，这不是一个 BST，是普通的二叉树。
+
+可以使用深度优先的方法，设置标志位。
+
+```
+1 --> 2 --> 4 --> 8
+BACKTRACK 8 --> 4
+4 --> 9 (ONE NODE FOUND, return True)
+BACKTRACK 9 --> 4 --> 2
+2 --> 5 --> 10
+BACKTRACK 10 --> 5
+5 --> 11 (ANOTHER NODE FOUND, return True)
+BACKTRACK 11 --> 5 --> 2
+```
+
+```java
+class Solution {
+
+    TreeNode result;
+    
+    private boolean recurseTree(TreeNode currentNode, TreeNode p, TreeNode q) {
+        if (currentNode == null)
+            return false;
+        int left = recurseTree(currentNode.left, p, q)? 1 : 0;
+        int right = recurseTree(currentNode.right, p , q)? 1 : 0;
+        int mid = (currentNode == p || currentNode == q)? 1 : 0;
+        if (left + right + mid >= 2)
+            result = currentNode;
+        return (left + right + mid > 0);
+    }
+
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        recurseTree(root, p, q);
+        return result;
+    }
+}
+```
+
+还有一个暴力的做法是使用哈希表存储所有结点的父结点，最后取出来比较。
+
+
+
