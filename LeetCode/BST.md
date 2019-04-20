@@ -209,5 +209,279 @@ class Solution {
 
 还有一个暴力的做法是使用哈希表存储所有结点的父结点，最后取出来比较。
 
+## 从有序数组中构造二叉查找树
+
+[108. Convert Sorted Array to Binary Search Tree (Easy)](https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/description/)
+
+从一个有序数组中构建平衡二叉树，那么，选谁做根了，根比左子树大，比右子树小，毫无疑问，应该是位于中间的元素，那么可以尝试使用**递归 + 二分法**，每次选择中间的元素作为根，其左子树就是中间元素左边递归的结果，右子树就是中间元素右边递归的结果。
+
+```java
+class Solution {
+    public TreeNode sortedArrayToBST(int[] nums) {
+        return sortedBST(nums, 0, nums.length - 1);
+    }
+
+    public TreeNode sortedBST(int[] nums, int start, int end) {
+        if (start > end)
+            return null;
+        int mid = start + (end - start) / 2;
+        TreeNode root = new TreeNode(nums[mid]);
+        root.left = sortedBST(nums, start, mid - 1);
+        root.right = sortedBST(nums, mid + 1, end);
+        return root;
+    }
+}
+```
+
+> 考查递归、二分法（数组有序）
+
+## 根据有序链表构造平衡的二叉查找树
+
+[109. Convert Sorted List to Binary Search Tree (Middle)](https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree/description/)
+
+如果空间不限制的话，可以将链表转换为数组，那么就变成了与 108 题一样的解法了，但这不是这道题考查的方向，我们应该用链表的方式去解决。
+
+**常规方法**：快慢指针找中间值，断开链表为前后两段，递归完成。
+
+```java
+class Solution {
+    public TreeNode sortedListToBST(ListNode head) {
+        if (head == null)
+            return null;
+        if (head.next == null) return new TreeNode(head.val);	// 不可缺少，否则栈溢出
+        ListNode preMid = FindPreMid(head);
+        ListNode mid = preMid.next;
+        TreeNode root = new TreeNode(mid.val);
+        preMid.next = null; // 断开链接，分成前后两半
+        root.left = sortedListToBST(head);
+        root.right = sortedListToBST(mid.next);
+        return root;
+    }
+
+    public ListNode FindPreMid(ListNode head) {
+        // 使用快慢指针的方式找到中间节点。
+        ListNode fast = head;
+        ListNode slow = head;
+        ListNode pre = slow;
+        while (fast != null && fast.next != null) {
+            pre = slow;
+            fast = fast.next.next;
+            slow = slow.next;
+        }
+        return pre;
+    }
+}
+```
+
+中序遍历：难，因为 BST 中序遍历就是链表的顺序
+
+```java
+
+class Solution {
+    private ListNode node;
+
+    public TreeNode sortedListToBST(ListNode head) {
+        if(head == null){
+            return null;
+        }
+
+        int size = 0;
+        ListNode runner = head;
+        node = head;
+
+        while(runner != null){
+            runner = runner.next;
+            size ++;
+        }
+
+        return inorderHelper(0, size - 1);
+    }
+
+    public TreeNode inorderHelper(int start, int end){
+        if(start > end){
+            return null;
+        }
+
+        int mid = start + (end - start) / 2;
+        TreeNode left = inorderHelper(start, mid - 1);
+
+        TreeNode treenode = new TreeNode(node.val);
+        treenode.left = left;
+        node = node.next;
+
+        TreeNode right = inorderHelper(mid + 1, end);
+        treenode.right = right;
+
+        return treenode;
+    }
+}
+
+```
+
+## 在二叉查找树中寻找两个节点，使它们的和为一个给定值
+
+[653. Two Sum IV - Input is a BST (Easy)](https://leetcode.com/problems/two-sum-iv-input-is-a-bst/submissions/)
+
+这道题由于候选的两个节点可能在根结点的两侧，不建议使用 BST 的性质解决。
+
+我的思路：中序遍历 + Hashset 去重（类似 two sum），但是递归有多余的重复
+
+```java
+class Solution {
+    
+    HashSet<Integer> set = new HashSet<>();
+    
+    public boolean findTarget(TreeNode root, int k) {
+        if (root == null) return false;
+        boolean left = findTarget(root.left, k);
+        if (set.contains(k - root.val))
+            return true;
+        else if (!set.contains(root.val))
+            set.add(root.val);
+        boolean right = findTarget(root.right, k);
+        return left || right;
+    }
+```
+
+第二种思路：层次遍历，循环不递归
+
+```java
+class Solution {
+
+    HashSet<Integer> set = new HashSet<>();
+
+    public boolean findTarget(TreeNode root, int k) {
+        if (root == null) return false;
+        LinkedList<TreeNode> queue = new LinkedList<>();
+        queue.addLast(root);
+        while (!queue.isEmpty()) {
+            TreeNode node = queue.pollFirst();
+            if (set.contains(k - node.val))
+                return true;
+            if (!set.contains(node.val))
+                set.add(node.val);
+            if (node.left != null) queue.addLast(node.left);
+            if (node.right != null) queue.addLast(node.right);
+        }
+        return false;
+    }
+}
+```
+
+第三种思路：较快，中序遍历得到一个递增的序列存储于数组中，使用双指针遍历该数组，首尾指针比较，只需遍历一半的数组。
+
+```java
+class Solution {
+    
+    ArrayList<Integer> arrayList = new ArrayList<>();
+    
+    public boolean findTarget(TreeNode root, int k) {
+        if (root == null) return false;
+        InOrder(root);  // 中序遍历，构建数组
+        Integer[] nums = arrayList.toArray(new Integer[arrayList.size()]);
+        int i = 0;
+        int j = nums.length - 1;
+        while (i < j) {
+            int compare = nums[i] + nums[j];
+            if (compare > k) j--;
+            else if (compare < k) i++;
+            else 
+                return true;
+        }
+        return false;
+    }
+
+    public void InOrder(TreeNode root) {
+        if (root == null) return;
+        InOrder(root.left);
+        arrayList.add(root.val);
+        InOrder(root.right);
+    }
+
+}
+```
+
+## 在二叉查找树中查找两个节点之差的最小绝对值
+
+[530. Minimum Absolute Difference in BST (Easy)](https://leetcode.com/problems/minimum-absolute-difference-in-bst/submissions/)
+
+思路：中序遍历 BST 将得到一个递增的序列，在遍历的过程中记录下相邻的结点之间的绝对值之差即可，取最小值。
+
+```java
+class Solution {
+
+    int min = Integer.MAX_VALUE;
+
+    TreeNode pre = null;
+
+    public int getMinimumDifference(TreeNode root) {
+        InOrder(root);
+        return min;
+    }
+    
+    public void InOrder(TreeNode root) {
+        if (root == null) return;
+        InOrder(root.left);
+        if (pre != null) min = Math.min(min, Math.abs(root.val - pre.val));
+        pre = root;
+        InOrder(root.right);
+    }
+}
+```
+
+## 寻找二叉查找树中出现次数最多的值
+
+[501. Find Mode in Binary Search Tree (Easy)](https://leetcode.com/problems/find-mode-in-binary-search-tree/)
+
+这道题与上一题类似，但是处理稍微复杂，需要记录中序遍历中记录出现相同次数的元素的最大值，不断的比较，找出最大的。！！！！！
+
+```java
+class Solution {
+    private int curCnt = 1;
+    private int maxCnt = 1;
+    private TreeNode preNode = null;
+
+    public int[] findMode(TreeNode root) {
+        List<Integer> maxCntNums = new ArrayList<>();
+        inOrder(root, maxCntNums);
+        int[] ret = new int[maxCntNums.size()];
+        int idx = 0;
+        for (int num : maxCntNums) {
+            ret[idx++] = num;
+        }
+        return ret;
+    }
+
+    private void inOrder(TreeNode node, List<Integer> nums) {
+        if (node == null) return;
+        inOrder(node.left, nums);
+        if (preNode != null) {
+            if (preNode.val == node.val) curCnt++;
+            else curCnt = 1;
+        }
+        if (curCnt > maxCnt) {
+            maxCnt = curCnt;
+            nums.clear();
+            nums.add(node.val);
+        } else if (curCnt == maxCnt) {
+            nums.add(node.val);
+        }
+        preNode = node;
+        inOrder(node.right, nums);
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
