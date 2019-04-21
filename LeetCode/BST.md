@@ -1,4 +1,189 @@
-# LeetCode  - 平衡二叉树相关题目
+# LeetCode  - 二叉树相关题目
+
+## 得到左下角的节点
+
+[513. Find Bottom Left Tree Value (Easy)](https://leetcode.com/problems/find-bottom-left-tree-value/description/)
+
+思路：层次遍历即可，每次取每层的第一个结点的值覆盖保存即可。
+
+```java
+class Solution {
+    public int findBottomLeftValue(TreeNode root) {
+        ArrayDeque<TreeNode> arrayDeque = new ArrayDeque<>();
+        arrayDeque.addLast(root);
+        int target = -1;
+        while (!arrayDeque.isEmpty()) {
+            target = arrayDeque.peek().val;
+            int size = arrayDeque.size();
+            for (int i = 0; i < size; i++) {
+                TreeNode node = arrayDeque.poll();
+                if (node.left != null) arrayDeque.offer(node.left);
+                if (node.right != null) arrayDeque.offer(node.right);
+            }
+        }
+        return target;
+    }
+}
+```
+
+## 非递归实现二叉树的前序遍历
+
+[144. Binary Tree Preorder Traversal(Easy)](https://leetcode.com/problems/binary-tree-preorder-traversal/)
+
+非递归实现：需要保证遍历的顺序是根、左、右，那么使用栈替代递归时就需要保证右子树先入栈，左子树后入栈。
+
+```java
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> list = new ArrayList<>();
+        if (root == null)
+            return list;
+        ArrayDeque<TreeNode> stack = new ArrayDeque<>();
+        stack.push(root);
+        while (!stack.isEmpty()) {
+            TreeNode node = stack.pop();
+            list.add(node.val);
+            if (node.right != null) stack.push(node.right); // 保证左子树先遍历
+            if (node.left != null) stack.push(node.left);
+        }
+        return list;
+    }
+}
+```
+
+递归实现
+
+```java
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> list = new ArrayList<>();
+        preOrder(root, list);
+        return list;
+    }
+
+    public void preOrder(TreeNode root, List<Integer> list) {
+        if (root == null) return;
+        list.add(root.val);
+        preOrder(root.left, list);
+        preOrder(root.right, list);
+    }
+```
+
+## 非递归实现二叉树的后序遍历
+
+[145. Binary Tree Postorder Traversal (Medium)](https://leetcode.com/problems/binary-tree-postorder-traversal/description/)
+
+递归实现：
+
+```java
+class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        List<Integer> list = new ArrayList<>();
+        postOrder(root, list);
+        return list;
+    }
+    
+    public void postOrder(TreeNode root, List<Integer> list) {
+        if (root == null) return;
+        postOrder(root.left, list);
+        postOrder(root.right, list);
+        list.add(root.val);
+    }
+}
+```
+
+非递归实现：这个比之前的要难，可以在前序遍历中修改下访问的顺序，前序遍历是 root - left - right，后序遍历是 left - right - root，那么先访问左结点先入栈，后结点后入栈，得到的是一个与后序遍历相反的顺序，在反转即可。
+
+```java
+class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        List<Integer> list = new ArrayList<>();
+        if (root == null)
+            return list;
+        ArrayDeque<TreeNode> stack = new ArrayDeque<>();
+        stack.push(root);
+        while (!stack.isEmpty()) {
+            TreeNode node = stack.pop();
+            list.add(node.val);
+            if (node.left != null) stack.push(node.left);
+            if (node.right != null) stack.push(node.right);
+        }
+        Collections.reverse(list);  // 反转回正确的顺序
+        return list;
+    }
+}
+```
+
+利用队列的头插法，同样可以在不反转的情况下，解决问题
+
+```java
+class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        LinkedList<Integer> list = new LinkedList<>();
+        ArrayDeque<TreeNode> stack = new ArrayDeque<>();
+        TreeNode cur = root;
+        while (cur != null || !stack.isEmpty()) {
+            if (cur != null) {
+                stack.push(cur);
+                list.addFirst(cur.val); // 头插法，先插入的排在最后
+                cur = cur.right;        // 右结点优先，比左结点更应该排在后边
+            }
+            else {
+                cur = stack.pop();
+                cur = cur.left;
+            }
+        }
+        return list;
+    }
+}
+```
+
+## 非递归实现二叉树的中序遍历
+
+[94. Binary Tree Inorder Traversal (Medium)](https://leetcode.com/problems/binary-tree-inorder-traversal/description/)
+
+递归写法
+
+```java
+class Solution {
+    public List<Integer> inorderTraversal(TreeNode root) {
+        List<Integer> list = new ArrayList<>();
+        InOrder(root, list);
+        return list;
+    }
+    
+    public void InOrder(TreeNode root, List<Integer> list) {
+        if (root == null) return;
+        InOrder(root.left, list);
+        list.add(root.val);
+        InOrder(root.right, list);
+    }
+}
+```
+
+非递归写法：栈，需要做的就是左子树需要先全部入栈，右子树后入。
+
+```java
+class Solution {
+    public List < Integer > inorderTraversal(TreeNode root) {
+        List < Integer > res = new ArrayList < > ();
+        ArrayDeque<TreeNode> stack = new ArrayDeque<>();
+        TreeNode cur = root;
+        while (cur != null || !stack.isEmpty()) {
+            while (cur != null) {
+                stack.push(cur);
+                cur = cur.left;  // 左子树需要全部入列先
+            }
+            cur = stack.pop();
+            res.add(cur.val);
+            cur = cur.right;
+        }
+        return res;
+    }
+}
+```
+
+# LeetCode  - 平衡二叉树 & 二叉搜索树相关题目
 
 ## 裁剪平衡二叉树
 
@@ -471,17 +656,3 @@ class Solution {
     }
 }
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
