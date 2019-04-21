@@ -183,6 +183,125 @@ class Solution {
 }
 ```
 
+## 找出二叉树中第二小的节点
+
+[671. Second Minimum Node In a Binary Tree (Easy)](https://leetcode.com/problems/second-minimum-node-in-a-binary-tree/submissions/)
+
+思路一：由于要找最小的，且是第二小，我首先想到的是遍历整颗二叉树，将结点存储在一个最小堆的优先队列中，再取出第二小的。空间复杂度 O(n)
+
+```java
+class Solution {
+    public int findSecondMinimumValue(TreeNode root) {
+        PriorityQueue<Integer> priorityQueue = new PriorityQueue<>();
+        InOrder(root, priorityQueue);
+        while (!priorityQueue.isEmpty()) {
+            Integer val = priorityQueue.remove();
+            Integer nextSmall = priorityQueue.peek();
+            if (nextSmall != null && val < nextSmall)
+                return nextSmall;
+        }
+        return -1;
+    }
+
+    public void InOrder(TreeNode root, PriorityQueue priorityQueue) {
+        if (root == null) return;
+        InOrder(root.left, priorityQueue);
+        priorityQueue.add(root.val);
+        InOrder(root.right, priorityQueue);
+    }
+}
+```
+
+改进版：不使用优先队列，在遍历的过程中比较并记录最小值与次最小值
+
+```java
+class Solution {
+    int min = Integer.MAX_VALUE;
+    long second = Long.MAX_VALUE;
+
+    public int findSecondMinimumValue(TreeNode root) {
+        preOrder(root);
+        return second < Long.MAX_VALUE? (int) second : -1;
+    }
+
+    public void preOrder(TreeNode root) {
+        if (root == null) return;
+        if (root.val < min) min = root.val;
+        if (min < root.val && second > root.val) second = root.val;
+        preOrder(root.left);
+        preOrder(root.right);
+    }
+
+}
+```
+
+## 间隔遍历
+
+[337. House Robber III (Medium)](https://leetcode.com/problems/house-robber-iii/)
+
+这道题结合了动态规划与二叉树的遍历。对于小偷而言，房子一共有两个状态，即偷与不偷。
+
+从根结点出发：
+
+若偷根，则最大值会是 root + root.left.left + root.left.right + root.right.left + root.right.right ；
+
+不偷根，则最大值是 root.left + root.right
+
+这只是局部而言，整棵树就可以通过递归遍历后，比较这两个状态下的最大值取较大者。
+
+
+```java
+class Solution {
+    public int rob(TreeNode root) {
+        if (root == null) return 0;
+        int hold = root.val;
+        if (root.left != null) hold += rob(root.left.left) + rob(root.left.right);
+        if (root.right != null) hold += rob(root.right.left) + rob(root.right.right);
+        int unHold = rob(root.left) + rob(root.right);
+        return Math.max(hold, unHold);
+    }
+}
+```
+
+但是使用先序遍历的话，从上往下会遍历，重复遍历较多，影响效率，可以使用后序遍历的方法减少重复的遍历进行优化：
+
+后序遍历后的孩子结点可以取，也可以不取，需要使用一个数组存储这两种情况。
+
+```java
+        result[0] = Math.max(left[0], left[1]) + Math.max(right[0], right[1]);	// 结点不被取的情况下
+        result[1] = left[0] + right[0] + root.val;	// 结点被取的情况下
+```
+
+```java
+class Solution {
+    public int rob(TreeNode root) {
+        if(root == null) {
+            return 0;
+        }
+        int[] result = postOrder(root);
+        return Math.max(result[0], result[1]);
+    }
+    /*
+    postOrder traversal to get children rob and notRob value
+    int[2] int[0] not rob, int[1] rob
+    rob = left_nr + right_nr + root.val
+    notRob = max(left_r, left_nr) + max(right_r, right_nr)
+
+    */
+    private int[] postOrder(TreeNode root) {
+        if(root == null) {
+            return new int[2];
+        }
+        int[] left = postOrder(root.left);
+        int[] right = postOrder(root.right);
+        int[] result = new int[2];
+        result[0] = Math.max(left[0], left[1]) + Math.max(right[0], right[1]);
+        result[1] = left[0] + right[0] + root.val;
+        return result;
+    }
+} 
+```
+
 # LeetCode  - 平衡二叉树 & 二叉搜索树相关题目
 
 ## 裁剪平衡二叉树
