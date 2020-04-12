@@ -13,8 +13,6 @@
 
 ## 图的表示
 
-![](https://lcanmelo.me/upload/2019/03/sm6m3dghqui3uobgem8567guat.png)
-
 - 邻接表
 - 邻接矩阵
 - 边的数组
